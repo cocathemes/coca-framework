@@ -1,0 +1,225 @@
+/* --------------------------- */
+/* Coca Framework Admin Styles */
+
+#coca-framework {
+    max-width:840px;
+    background:#fff;
+}
+#coca-framework h3 {
+	cursor: default;
+	background-color: #f1f1f1;
+	border-bottom: 1px solid #ddd;
+}
+#coca-framework p {
+	margin-bottom:0;
+	padding-bottom:10px;
+}
+#coca-framework .section {
+	padding:10px 10px 0;
+}
+#coca-framework .group {
+	padding-bottom:40px;
+}
+#coca-framework .section .controls {
+	float: left;
+	min-width:350px;
+	width: 54%;
+	padding-right:2%;
+}
+#coca-framework .section .explain {
+	max-width:38%;
+	float: left;
+	font-size: 12px;
+	line-height:16px;
+	color: #777;
+}
+#coca-framework .section-checkbox .controls {
+	width: 98%;
+}
+#coca-framework .section-checkbox .explain {
+	max-width:94%;
+}
+#coca-framework .controls input[type=text] {
+	width:100%;
+}
+#coca-framework .controls input[type=text].wp-color-picker {
+    width: 65px;
+}
+#coca-framework .controls select, #coca-framework .controls textarea {
+	margin-bottom:10px;
+	width:100%;
+}
+#coca-framework .section-radio label, #coca-framework .section-multicheck label {
+	float:left;
+	max-width:90%;
+	line-height: 16px;
+	margin-bottom: 5px;
+}
+#coca-framework input.checkbox, #coca-framework input.of-radio {
+	margin: 0 10px 5px 0;
+	float:left;
+	clear:both;
+}
+#coca-framework .section-typography .controls {
+	float:none;
+	width:auto;
+}
+#coca-framework .section-typography .explain {
+	float:none;
+	width:auto;
+}
+#coca-framework .controls .of-typography-size {
+	width:80px;
+	float:left
+}
+#coca-framework .controls .of-typography-unit {
+	width:50px;
+	margin-left:5px;
+	float:left
+}
+#coca-framework .controls .of-typography-face {
+	width:100px;
+	margin-left:5px;
+	float:left
+}
+#coca-framework .controls .of-typography-style {
+	width:80px;
+	margin-left:5px;
+	margin-right:5px;
+	float:left
+}
+#coca-framework .section-typography .wp-picker-container {
+	margin-top:2px;
+}
+#coca-framework .of-background-properties {
+	clear:both;
+	margin-top: 18px;
+}
+#coca-framework .controls .of-background-repeat {
+	width:125px;
+	margin-right:5px;
+	float:left
+}
+#coca-framework .controls .of-background-position {
+	width:125px;
+	margin-right:5px;
+	float:left
+}
+#coca-framework .controls .of-background-attachment {
+	width:125px;
+	margin-right:5px;
+	float:left
+}
+#coca-framework .section-background .wp-picker-container {
+	margin-bottom:10px;
+}
+#coca-framework .controls .of-radio-img-img {
+	border:3px solid #f9f9f9;
+	margin:0 5px 10px 0;
+	display:none;
+	cursor:pointer;
+	float:left;
+}
+#coca-framework .controls .of-radio-img-selected {
+	border:3px solid #ccc
+}
+#coca-framework .controls .of-radio-img-img:hover {
+	opacity:.8;
+}
+#coca-framework .controls .of-border-width {
+	width:80px;
+	float:left
+}
+#coca-framework .controls .of-border-style {
+	width:120px;
+	float:left
+}
+#coca-framework .hide {
+	display:none;
+}
+#coca-framework .of-option-image {
+	max-width:340px;
+	margin:3px 0 18px 0;
+}
+#coca-framework .mini .controls select, #coca-framework .section .mini .controls {
+	width: 140px;
+}
+#coca-framework .mini .controls input, #coca-framework .mini .controls {
+	min-width:140px;
+	width: 140px;
+}
+#coca-framework .mini .explain {
+	max-width:74%;
+}
+
+/* Editor */
+
+#coca-framework .section-editor .explain {
+	max-width: 98%;
+	float:none;
+	margin-bottom:5px;
+}
+
+/* Image Uploader */
+
+#coca-framework .controls input.upload {
+	width:80%;
+}
+#coca-framework .screenshot {
+	float:left;
+	margin-left:1px;
+	position:relative;
+	width:344px;
+	margin-top:3px;
+}
+#coca-framework .screenshot img {
+	background:#fafafa;
+	border-color:#ccc #eee #eee #ccc;
+	border-style:solid;
+	border-width:1px;
+	float:left;
+	max-width:334px;
+	padding:4px;
+	margin-bottom:10px;
+}
+#coca-framework .screenshot .remove-image {
+	background:url("../images/ico-delete.png") no-repeat;
+	border:medium none;
+	bottom:4px;
+	display:block;
+	float:left;
+	height:16px;
+	padding:0;
+	position:absolute;
+	left:-4px;
+	text-indent:-9999px;
+	width:16px;
+}
+#coca-framework .screenshot .no_image .file_link {
+	margin-left: 20px;
+}
+#coca-framework .screenshot .no_image .remove-button {
+	bottom: 0px;
+}
+#coca-framework .reset-button {
+	float:left;
+	cursor:pointer;
+}
+
+/* Bottom Section */
+
+#coca-framework-submit {
+	padding: 7px 10px;
+	border-top: 1px solid #ddd;
+	background-color: #f1f1f1;
+}
+#coca-framework .button-primary {
+	float:right;
+}
+#coca-framework .section:after {
+	content: "";
+	display: table;
+}
+#coca-framework .section:after {
+	clear: both;
+}

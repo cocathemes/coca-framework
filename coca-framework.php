@@ -2,7 +2,7 @@
 /**
  * Coca-Framework theme framework.
  *
- * @package coca-framework
+ * @package Coca-Framework
  * @author Bang Tien Manh
  * @link http://cocathemes.com
  */
@@ -22,11 +22,11 @@ function coca_framework_init() {
 	load_plugin_textdomain( 'coca-framework', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
 	// Loads the required Options Framework classes.
-	require plugin_dir_path( __FILE__ ) . 'includes/class-coca-framework.php';
-	require plugin_dir_path( __FILE__ ) . 'includes/class-coca-framework-admin.php';
-	require plugin_dir_path( __FILE__ ) . 'includes/class-coca-interface.php';
-	require plugin_dir_path( __FILE__ ) . 'includes/class-coca-media-uploader.php';
-	require plugin_dir_path( __FILE__ ) . 'includes/class-coca-sanitization.php';
+	require plugin_dir_path( __FILE__ ) . 'inc/class-coca-framework.php';
+	require plugin_dir_path( __FILE__ ) . 'inc/class-coca-framework-admin.php';
+	require plugin_dir_path( __FILE__ ) . 'inc/class-coca-interface.php';
+	require plugin_dir_path( __FILE__ ) . 'inc/class-coca-media-uploader.php';
+	require plugin_dir_path( __FILE__ ) . 'inc/class-coca-sanitization.php';
 
 	// Instantiate the main plugin class.
 	$coca_framework = new Coca_Framework;

@@ -1,0 +1,387 @@
+<?php
+/**
+ * @package   Coca-Framework
+ * @author    Bang Tien Manh
+ * @link      http://www.cocathemes.com
+ * @copyright 2014 CocaThemes
+ */
+
+class Coca_Framework_Admin {
+
+	/**
+     * Page hook for the options screen
+     *
+     * @since 1.7.0
+     * @type string
+     */
+    protected $options_screen = null;
+
+    /**
+     * Hook in the scripts and styles
+     *
+     * @since 1.7.0
+     */
+    public function init() {
+
+		// Gets options to load
+    	$options = & Coca_Framework::_coca_framework_options();
+
+		// Checks if options are available
+    	if ( $options ) {
+
+			// Add the options page and menu item.
+			add_action( 'admin_menu', array( $this, 'add_custom_options_page' ) );
+
+			// Add the required scripts and styles
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+
+			// Settings need to be registered after admin_init
+			add_action( 'admin_init', array( $this, 'settings_init' ) );
+
+			// Adds options menu to the admin bar
+			add_action( 'wp_before_admin_bar_render', array( $this, 'coca_framework_admin_bar' ) );
+
+		} else {
+			// Display a notice if options aren't present in the theme
+			add_action( 'admin_notices', array( $this, 'options_notice' ) );
+			add_action( 'admin_init', array( $this, 'options_notice_ignore' ) );
+		}
+
+    }
+
+	/**
+     * Let's the user know that options aren't available for their theme
+     */
+    function options_notice() {
+		global $pagenow;
+        if ( !is_multisite() && ( $pagenow == 'plugins.php' || $pagenow == 'themes.php' ) ) {
+			global $current_user ;
+			$user_id = $current_user->ID;
+			if ( ! get_user_meta($user_id, 'coca_framework_ignore_notice') ) {
+				echo '<div class="updated coca_framework_setup_nag"><p>';
+				printf( __('Your current theme does not have support for the Coca Framework plugin.  <a href="%1$s" target="_blank">Learn More</a> | <a href="%2$s">Hide Notice</a>', 'coca-framework' ), 'http://www.cocathemes.com/coca-framework-plugin', '?coca_framework_nag_ignore=0');
+				echo "</p></div>";
+			}
+        }
+	}
+
+	/**
+     * Allows the user to hide the options notice
+     */
+	function options_notice_ignore() {
+		global $current_user;
+		$user_id = $current_user->ID;
+		if ( isset( $_GET['coca_framework_nag_ignore'] ) && '0' == $_GET['coca_framework_nag_ignore'] ) {
+			add_user_meta( $user_id, 'coca_framework_ignore_notice', 'true', true );
+		}
+	}
+
+	/**
+     * Registers the settings
+     *
+     * @since 1.7.0
+     */
+    function settings_init() {
+
+    	// Load Options Framework Settings
+        $coca_framework_settings = get_option( 'coca-framework' );
+
+		// Registers the settings fields and callback
+		register_setting( 'coca-framework', $coca_framework_settings['id'],  array ( $this, 'validate_options' ) );
+
+		// Displays notice after options save
+		add_action( 'coca_framework_after_validate', array( $this, 'save_options_notice' ) );
+
+    }
+
+	/*
+	 * Define menu options (still limited to appearance section)
+	 *
+	 * Examples usage:
+	 *
+	 * add_filter( 'coca_framework_menu', function( $menu ) {
+	 *     $menu['page_title'] = 'The Options';
+	 *	   $menu['menu_title'] = 'The Options';
+	 *     return $menu;
+	 * });
+	 *
+	 * @since 1.7.0
+	 *
+	 */
+	static function menu_settings() {
+
+		$menu = array(
+
+			// Modes: submenu, menu
+      'mode' => 'submenu',
+
+      // Submenu default settings
+      'page_title' => __( 'Theme Options', 'coca-framework'),
+			'menu_title' => __('Theme Options', 'coca-framework'),
+			'capability' => 'edit_theme_options',
+			'menu_slug' => 'coca-framework',
+      'parent_slug' => 'themes.php',
+
+      // Menu default settings
+      'icon_url' => 'dashicons-admin-generic',
+      'position' => '61'
+
+		);
+
+		return apply_filters( 'coca_framework_menu', $menu );
+	}
+
+	/**
+     * Add a subpage called "Theme Options" to the appearance menu.
+     *
+     * @since 1.7.0
+     */
+	function add_custom_options_page() {
+
+		$menu = $this->menu_settings();
+
+        switch( $menu['mode'] ) {
+
+            case 'menu':
+            	// http://codex.wordpress.org/Function_Reference/add_menu_page
+                $this->options_screen = add_menu_page(
+                	$menu['page_title'],
+                	$menu['menu_title'],
+                	$menu['capability'],
+                	$menu['menu_slug'],
+                	array( $this, 'options_page' ),
+                	$menu['icon_url'],
+                	$menu['position']
+                );
+                break;
+
+            default:
+            	// http://codex.wordpress.org/Function_Reference/add_submenu_page
+                $this->options_screen = add_submenu_page(
+                	$menu['parent_slug'],
+                	$menu['page_title'],
+                	$menu['menu_title'],
+                	$menu['capability'],
+                	$menu['menu_slug'],
+                	array( $this, 'options_page' ) );
+                break;
+        }
+	}
+
+	/**
+     * Loads the required stylesheets
+     *
+     * @since 1.7.0
+     */
+	function enqueue_admin_styles( $hook ) {
+
+		if ( $this->options_screen != $hook )
+	        return;
+
+		wp_enqueue_style( 'coca-framework', plugin_dir_url( dirname(__FILE__) ) . 'css/coca-framework.css', array(),  Coca_Framework::VERSION );
+		wp_enqueue_style( 'wp-color-picker' );
+	}
+
+	/**
+     * Loads the required javascript
+     *
+     * @since 1.7.0
+     */
+	function enqueue_admin_scripts( $hook ) {
+
+		if ( $this->options_screen != $hook )
+	        return;
+
+		// Enqueue custom option panel JS
+		wp_enqueue_script( 'coca-custom', plugin_dir_url( dirname(__FILE__) ) . 'js/coca-custom.js', array( 'jquery','wp-color-picker' ), Coca_Framework::VERSION );
+
+		// Inline scripts from options-interface.php
+		add_action( 'admin_head', array( $this, 'cf_admin_head' ) );
+	}
+
+	function of_admin_head() {
+		// Hook to add custom scripts
+		do_action( 'coca_framework_custom_scripts' );
+	}
+
+	/**
+     * Builds out the options panel.
+     *
+	 * If we were using the Settings API as it was intended we would use
+	 * do_settings_sections here.  But as we don't want the settings wrapped in a table,
+	 * we'll call our own custom coca_framework_fields.  See options-interface.php
+	 * for specifics on how each individual field is generated.
+	 *
+	 * Nonces are provided using the settings_fields()
+	 *
+     * @since 1.7.0
+     */
+	 function options_page() { ?>
+
+		<div id="coca-framework-wrap" class="wrap">
+
+		<?php $menu = $this->menu_settings(); ?>
+		<h2><?php echo esc_html( $menu['page_title'] ); ?></h2>
+
+	    <h2 class="nav-tab-wrapper">
+	        <?php echo Coca_Framework_Interface::coca_framework_tabs(); ?>
+	    </h2>
+
+	    <?php settings_errors( 'coca-framework' ); ?>
+
+	    <div id="coca-framework-metabox" class="metabox-holder">
+		    <div id="coca-framework" class="postbox">
+				<form action="options.php" method="post">
+				<?php settings_fields( 'coca-framework' ); ?>
+				<?php Options_Framework_Interface::coca_framework_fields(); /* Settings */ ?>
+				<div id="optionsframework-submit">
+					<input type="submit" class="button-primary" name="update" value="<?php esc_attr_e( 'Save Options', 'options-framework' ); ?>" />
+					<input type="submit" class="reset-button button-secondary" name="reset" value="<?php esc_attr_e( 'Restore Defaults', 'options-framework' ); ?>" onclick="return confirm( '<?php print esc_js( __( 'Click OK to reset. Any theme settings will be lost!', 'options-framework' ) ); ?>' );" />
+					<div class="clear"></div>
+				</div>
+				</form>
+			</div> <!-- / #container -->
+		</div>
+		<?php do_action( 'coca_framework_after' ); ?>
+		</div> <!-- / .wrap -->
+
+	<?php
+	}
+
+	/**
+	 * Validate Options.
+	 *
+	 * This runs after the submit/reset button has been clicked and
+	 * validates the inputs.
+	 *
+	 * @uses $_POST['reset'] to restore default options
+	 */
+	function validate_options( $input ) {
+
+		/*
+		 * Restore Defaults.
+		 *
+		 * In the event that the user clicked the "Restore Defaults"
+		 * button, the options defined in the theme's options.php
+		 * file will be added to the option for the active theme.
+		 */
+
+		if ( isset( $_POST['reset'] ) ) {
+			add_settings_error( 'coca-framework', 'restore_defaults', __( 'Default options restored.', 'coca-framework' ), 'updated fade' );
+			return $this->get_default_values();
+		}
+
+		/*
+		 * Update Settings
+		 *
+		 * This used to check for $_POST['update'], but has been updated
+		 * to be compatible with the theme customizer introduced in WordPress 3.4
+		 */
+
+		$clean = array();
+		$options = & Coca_Framework::_coca_framework_options();
+		foreach ( $options as $option ) {
+
+			if ( ! isset( $option['id'] ) ) {
+				continue;
+			}
+
+			if ( ! isset( $option['type'] ) ) {
+				continue;
+			}
+
+			$id = preg_replace( '/[^a-zA-Z0-9._\-]/', '', strtolower( $option['id'] ) );
+
+			// Set checkbox to false if it wasn't sent in the $_POST
+			if ( 'checkbox' == $option['type'] && ! isset( $input[$id] ) ) {
+				$input[$id] = false;
+			}
+
+			// Set each item in the multicheck to false if it wasn't sent in the $_POST
+			if ( 'multicheck' == $option['type'] && ! isset( $input[$id] ) ) {
+				foreach ( $option['options'] as $key => $value ) {
+					$input[$id][$key] = false;
+				}
+			}
+
+			// For a value to be submitted to database it must pass through a sanitization filter
+			if ( has_filter( 'cf_sanitize_' . $option['type'] ) ) {
+				$clean[$id] = apply_filters( 'cf_sanitize_' . $option['type'], $input[$id], $option );
+			}
+		}
+
+		// Hook to run after validation
+		do_action( 'coca_framework_after_validate', $clean );
+
+		return $clean;
+	}
+
+	/**
+	 * Display message when options have been saved
+	 */
+
+	function save_options_notice() {
+		add_settings_error( 'coca-framework', 'save_options', __( 'Options saved.', 'coca-framework' ), 'updated fade' );
+	}
+
+	/**
+	 * Get the default values for all the theme options
+	 *
+	 * Get an array of all default values as set in
+	 * options.php. The 'id','std' and 'type' keys need
+	 * to be defined in the configuration array. In the
+	 * event that these keys are not present the option
+	 * will not be included in this function's output.
+	 *
+	 * @return array Re-keyed options configuration array.
+	 *
+	 */
+
+	function get_default_values() {
+		$output = array();
+		$config = & Options_Framework::_coca_framework_options();
+		foreach ( (array) $config as $option ) {
+			if ( ! isset( $option['id'] ) ) {
+				continue;
+			}
+			if ( ! isset( $option['std'] ) ) {
+				continue;
+			}
+			if ( ! isset( $option['type'] ) ) {
+				continue;
+			}
+			if ( has_filter( 'cf_sanitize_' . $option['type'] ) ) {
+				$output[$option['id']] = apply_filters( 'cf_sanitize_' . $option['type'], $option['std'], $option );
+			}
+		}
+		return $output;
+	}
+
+	/**
+	 * Add options menu item to admin bar
+	 */
+
+	function coca_framework_admin_bar() {
+
+		$menu = $this->menu_settings();
+
+		global $wp_admin_bar;
+
+		if ( 'menu' == $menu['mode'] ) {
+			$href = admin_url( 'admin.php?page=' . $menu['menu_slug'] );
+		} else {
+			$href = admin_url( 'themes.php?page=' . $menu['menu_slug'] );
+		}
+
+		$args = array(
+			'parent' => 'appearance',
+			'id' => 'cf_theme_options',
+			'title' => $menu['menu_title'],
+			'href' => $href
+		);
+
+		$wp_admin_bar->add_menu( apply_filters( 'coca_framework_admin_bar', $args ) );
+	}
+
+}
